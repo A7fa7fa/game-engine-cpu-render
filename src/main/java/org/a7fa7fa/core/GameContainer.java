@@ -1,11 +1,11 @@
-package org.a7fa7fa;
+package org.a7fa7fa.core;
 
 public class GameContainer implements Runnable {
 
     private Thread thread;
     private boolean running = false;
-    private final double UPDATE_CAP = 1.0/60.0;
-
+    private final double FRAMES_PER_SECOND = 60.0;
+    private final double UPDATE_CAP = 1.0 / FRAMES_PER_SECOND;
 
     public GameContainer(){}
 
@@ -15,7 +15,9 @@ public class GameContainer implements Runnable {
         thread.run(); // makes this to main thread
     }
 
-    public void stop() {}
+    public void stop() {
+        running = false;
+    }
 
     public void run() {
         System.out.println("Thread running.");
@@ -60,17 +62,22 @@ public class GameContainer implements Runnable {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    // TOOD error handling
-                    throw new RuntimeException(e);
+                    // TODO error handling
                 }
             }
         }
 
         dispose();
-
     }
 
-    private void dispose() {}
+    private void dispose()  {
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            // TODO error handling
+        }
+    }
 
 
 }

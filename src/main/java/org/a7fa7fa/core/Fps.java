@@ -1,4 +1,4 @@
-package org.a7fa7fa;
+package org.a7fa7fa.core;
 
 public class Fps {
 
@@ -22,7 +22,7 @@ public class Fps {
         return fps;
     }
 
-    public double getFrameTime() {
+    double getFrameTime() {
         return frameTime;
     }
 }

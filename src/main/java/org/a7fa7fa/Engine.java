@@ -1,5 +1,7 @@
 package org.a7fa7fa;
 
+import org.a7fa7fa.core.GameContainer;
+
 /**
  * Hello world!
  *
