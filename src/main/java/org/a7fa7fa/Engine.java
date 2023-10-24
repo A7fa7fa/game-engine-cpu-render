@@ -6,8 +6,11 @@ package org.a7fa7fa;
  */
 public class Engine
 {
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
+    public static void main( String[] args ) {
+
+        System.out.println( "Starting..." );
+
+        GameContainer gc = new GameContainer();
+        gc.start();
     }
 }
