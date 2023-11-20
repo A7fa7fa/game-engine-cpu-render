@@ -1,7 +1,4 @@
-package org.a7fa7fa.core;
-
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+package org.a7fa7fa.engine;
 
 public class GameContainer implements Runnable {
 
@@ -9,6 +6,7 @@ public class GameContainer implements Runnable {
     private Window window;
     private Renderer renderer;
     private Input input;
+    private AbstractGame game;
 
     private boolean running = false;
     private final double FRAMES_PER_SECOND = 60.0;
@@ -20,7 +18,9 @@ public class GameContainer implements Runnable {
 
     private String title = "my engine v1.0";
 
-    public GameContainer(){}
+    public GameContainer(AbstractGame game){
+        this.game = game;
+    }
 
     public void start() {
         System.out.println("Starting game container thread...");
@@ -60,11 +60,7 @@ public class GameContainer implements Runnable {
 
                 render = true; // only render if you have an update -> there is no point to render if there is no change
 
-                // TODO update game
-                if (input.isButtonDown(MouseEvent.BUTTON1)) {
-                    System.out.println("key is pressed");
-                }
-                System.out.println("x:" + input.getMouseX() + " y:" + input.getMouseY());
+                game.update(this, (float)UPDATE_CAP);
 
                 // input update should be the last part of update loop
                 input.update();
@@ -76,11 +72,9 @@ public class GameContainer implements Runnable {
 
             if (render) {
                 renderer.clear();
-
-                // TODO render game
+                game.render(this, renderer);
                 window.update();
                 fps.incrementFrame();
-
             } else {
                 try {
                     Thread.sleep(1);
@@ -141,4 +135,7 @@ public class GameContainer implements Runnable {
         return window;
     }
 
+    public Input getInput() {
+        return input;
+    }
 }

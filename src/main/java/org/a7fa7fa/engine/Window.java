@@ -1,4 +1,4 @@
-package org.a7fa7fa.core;
+package org.a7fa7fa.engine;
 
 import javax.swing.JFrame;
 import java.awt.*;
