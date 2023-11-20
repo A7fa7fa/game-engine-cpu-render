@@ -3,14 +3,22 @@ package org.a7fa7fa.core;
 public class GameContainer implements Runnable {
 
     private Thread thread;
+    private Window window;
+
     private boolean running = false;
     private final double FRAMES_PER_SECOND = 60.0;
     private final double UPDATE_CAP = 1.0 / FRAMES_PER_SECOND;
+
+    private int width = 320, height = 240;
+    private float scale = 4f;
+
+    private String title = "my engine v1.0";
 
     public GameContainer(){}
 
     public void start() {
         System.out.println("Starting game container thread...");
+        window = new Window(this);
         thread = new Thread(this);
         thread.run(); // makes this to main thread
     }
@@ -55,6 +63,7 @@ public class GameContainer implements Runnable {
             if (render) {
 
                 // TODO render game
+                window.update();
                 fps.incrementFrame();
 
             } else {
@@ -77,6 +86,40 @@ public class GameContainer implements Runnable {
             e.printStackTrace();
             // TODO error handling
         }
+    }
+
+
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public float getScale() {
+        return scale;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
 
