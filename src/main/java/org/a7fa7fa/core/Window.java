@@ -4,14 +4,15 @@ import javax.swing.JFrame;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
 public class Window {
 
-    private JFrame frame;
-    private BufferedImage image;
-    private Canvas canvas;
-    private BufferStrategy bufferStrategy;
-    private Graphics graphics;
+    private final JFrame frame;
+    private final BufferedImage image;
+    private final Canvas canvas;
+    private final BufferStrategy bufferStrategy;
+    private final Graphics graphics;
 
     public Window(GameContainer gc) {
         image = new BufferedImage(gc.getWidth(), gc.getHeight(), BufferedImage.TYPE_INT_RGB); // image that is stored in RAM
@@ -40,5 +41,25 @@ public class Window {
         graphics.drawImage(image,0, 0, canvas.getWidth(), canvas.getHeight(),null);
         // to draw from BufferStrategy to canvas
         bufferStrategy.show();
+    }
+
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
+    public Frame getFrame() {
+        return frame;
+    }
+
+    public Graphics getGraphics() {
+        return graphics;
+    }
+
+    public int[] getImagePixelData() {
+        return ((DataBufferInt)this.getImage().getRaster().getDataBuffer()).getData();
     }
 }
