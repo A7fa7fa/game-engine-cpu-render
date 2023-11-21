@@ -37,6 +37,11 @@ public class Image {
     }
 
     public int getPixelValue(int x, int y) {
-        return this.pixels[x + y * this.width];
+        try {
+            return this.pixels[x + y * this.width];
+        } catch (Exception e) {
+            System.out.println(x + " - " + y);
+            return 0;
+        }
     }
 }

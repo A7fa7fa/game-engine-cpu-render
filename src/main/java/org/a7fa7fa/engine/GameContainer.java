@@ -4,6 +4,7 @@ public class GameContainer implements Runnable {
 
     private Thread thread;
     private Window window;
+    private Fps fps;
     private Renderer renderer;
     private Input input;
     private AbstractGame game;
@@ -13,8 +14,8 @@ public class GameContainer implements Runnable {
     private final double UPDATE_CAP = 1.0 / FRAMES_PER_SECOND;
 
 //    private int width = 1600, height = 900;
-    private int width = 320, height = 240;
-    private float scale = 4f;
+    private int width = 640, height = 480;
+    private float scale = 2f;
 
     private String title = "my engine v1.0";
 
@@ -27,6 +28,7 @@ public class GameContainer implements Runnable {
         window = new Window(this);
         renderer = new Renderer(this);
         input = new Input(this);
+        fps = new Fps();
         thread = new Thread(this);
         thread.run(); // makes this to main thread
     }
@@ -37,7 +39,6 @@ public class GameContainer implements Runnable {
 
     public void run() {
         System.out.println("Thread running.");
-        Fps fps = new Fps();
         running = true;
 
         boolean render = false;
@@ -64,8 +65,8 @@ public class GameContainer implements Runnable {
 
                 // input update should be the last part of update loop
                 input.update();
-                if (fps.getFrameTime() >= 1.1) {
-                    System.out.println("Fps : " + fps.getFps());
+                if (fps.getFrameTime() >= 1.0) {
+                    fps.updateFps();
                 }
 
             }
@@ -137,5 +138,9 @@ public class GameContainer implements Runnable {
 
     public Input getInput() {
         return input;
+    }
+
+    public double getFps() {
+        return fps.getFps();
     }
 }

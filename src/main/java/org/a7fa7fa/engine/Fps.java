@@ -4,6 +4,7 @@ public class Fps {
 
     private double frameTime = 0;
     private int frames = 0;
+    private double fps = 0.0;
 
     public Fps() {}
 
@@ -15,11 +16,15 @@ public class Fps {
         this.frames++;
     }
 
-    double getFps() {
+    void updateFps() {
         double fps = Math.round(frames/frameTime*100.0)/100.0;
         frameTime = 0;
         frames = 0;
-        return fps;
+        this.fps = fps;
+    }
+
+    double getFps() {
+        return this.fps;
     }
 
     double getFrameTime() {
