@@ -16,12 +16,12 @@ public class Renderer {
     public Renderer(GameContainer gameContainer) {
         pixelWidth = gameContainer.getWidth();
         pixelHeight = gameContainer.getHeight();
-
         pixels = gameContainer.getWindow().getImagePixelData();
     }
 
     public void setPixel(int x, int y, int value) {
-        if( (x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) || value == Color.DONT_RENDER_COLOR.getHexValue() ) {
+        if( (x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) || ((value >> 24) & 0xff) == 0) { // bit shift right by 24 bit AND with 255 return alpha value
+//        if( (x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) || value == Color.DONT_RENDER_COLOR.getHexValue() ) {
             return;
         }
 
@@ -121,6 +121,38 @@ public class Renderer {
             offset += font.getWidths()[unicode];
         }
     }
+
+    public void drawRect(int offX, int offY, int width, int height, int color) {
+
+        // TODO clipping and out of screen
+
+        for (int y = 0; y <= height; y++) {
+            setPixel(offX, y + offY, color);
+            setPixel(offX + width, y + offY, color);
+        }
+
+        for (int x = 0; x <= width; x++) {
+            setPixel(offX + x, offY, color);
+            setPixel(offX + x, offY + height, color);
+        }
+    }
+
+    public void drawRect(int offX, int offY, int width, int height, int color, boolean fill) {
+
+        if (!fill) {
+            this.drawRect(offX, offY, width, height, color);
+            return;
+        }
+        // TODO cliping and out of screen
+
+        for (int y = 0; y <= height; y++) {
+            for (int x = 0; x <= width; x++) {
+                setPixel(offX +x, offY + y, color);
+            }
+        }
+
+    }
+
 
     public void clear() {
         for (int i = 0; i < pixels.length; i++) {
