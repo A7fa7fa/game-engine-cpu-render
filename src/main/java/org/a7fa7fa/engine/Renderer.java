@@ -103,6 +103,10 @@ public class Renderer {
     }
 
     public void drawText(String text, int offX, int offY, int color) {
+        this.drawText(text, offX, offY, color, 1);
+    }
+
+    public void drawText(String text, int offX, int offY, int color, int size) {
         text = text.toUpperCase();
 
         int offset = 0;
@@ -110,15 +114,15 @@ public class Renderer {
         for (int i = 0; i < text.length(); i++) {
             int unicode = text.codePointAt(i) - font.getFIRST_UNICODE_CHAR();
 
-            for (int y = 0; y < font.getFontImage().getHeight(); y++) {
-                for (int x = 0; x < font.getWidths()[unicode]; x++) {
-                    if (font.getFontImage().getPixelValue(x + font.getOffsets()[unicode], y) == Color.WHITE.getHexValue()) {
+            for (int y = 0; y < font.getFontImage().getHeight() * size; y++) {
+                for (int x = 0; x < font.getWidths()[unicode] * size; x++) {
+                    if (font.getFontImage().getPixelValue((x/size) + font.getOffsets()[unicode], (y/size)) == Color.WHITE.getHexValue()) {
                         setPixel(x + offX + offset, y + offY, color);
                     }
                 }
             }
 
-            offset += font.getWidths()[unicode];
+            offset += (font.getWidths()[unicode] * size);
         }
     }
 

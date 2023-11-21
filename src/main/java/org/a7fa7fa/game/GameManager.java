@@ -102,17 +102,18 @@ public class GameManager extends AbstractGame {
         renderer.drawRect(50,50,32,32, Color.BLACK.getHexValue());
         renderer.drawRect(100,100,32,32, Color.BLUEISH.getHexValue(), true);
 
-        renderer.drawImageTile(sprite, 50, 50, (int)spritePos, 0);
+        renderer.drawImageTile(sprite, 350, 150, (int)spritePos, 0);
 
-        renderer.drawImageTile(sprite, 100, 60, (int)spritePos, 0);
+        renderer.drawImageTile(sprite, 600, 260, (int)spritePos, 0);
 
         renderer.drawImageTile(character, charX, charY, charTile, 0);
 
         renderer.drawImage(cursor, gameContainer.getInput().getMouseX() - 8, gameContainer.getInput().getMouseY() - 8);
-        renderer.drawText("Fps: " + String.valueOf(gameContainer.getFps()), 1,1, Color.WHITE.getHexValue());
-        renderer.drawText("Mouse x:" + gameContainer.getInput().getMouseX() + " y:"+ gameContainer.getInput().getMouseY(), 1,11, Color.WHITE.getHexValue());
-        renderer.drawText("Mouse Tile x:" + gameContainer.getInput().getMouseX()/16 + " y:"+ gameContainer.getInput().getMouseY()/16, 1,21, Color.WHITE.getHexValue());
-        renderer.drawText("Char Tile x:" + charX/16 + " y:"+ charY/16, 1,31, Color.WHITE.getHexValue());
+
+        renderer.drawText("Fps: " + String.valueOf(gameContainer.getFps()), 1,1, Color.WHITE.getHexValue(), 2);
+        renderer.drawText("Mouse x:" + gameContainer.getInput().getMouseX() + " y:"+ gameContainer.getInput().getMouseY(), 1,21, Color.WHITE.getHexValue(), 2);
+        renderer.drawText("Mouse Tile x:" + gameContainer.getInput().getMouseX()/16 + " y:"+ gameContainer.getInput().getMouseY()/16, 1,41, Color.WHITE.getHexValue(), 2);
+        renderer.drawText("Char Tile x:" + charX/16 + " y:"+ charY/16, 1,61, Color.WHITE.getHexValue(), 2);
 
     }
 

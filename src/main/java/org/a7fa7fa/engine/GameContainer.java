@@ -15,7 +15,7 @@ public class GameContainer implements Runnable {
 
 //    private int width = 1600, height = 900;
     private int width = 640, height = 480;
-    private float scale = 2f;
+    private float scale = 1f;
 
     private String title = "my engine v1.0";
 
