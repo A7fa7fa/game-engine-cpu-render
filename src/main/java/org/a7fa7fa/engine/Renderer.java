@@ -26,8 +26,37 @@ public class Renderer {
     }
 
     public void drawImage(Image image, int offX, int offY) {
-        for (int y = 0; y < image.getHeight(); y++ ) {
-            for (int x = 0; x < image.getWidth(); x++ ) {
+        // don't render if whole image is offscreen
+        if (offX < -image.getWidth()) return;
+        if (offY < -image.getHeight()) return;
+        if (offX >= pixelWidth) return;
+        if (offY >= pixelHeight) return;
+
+        int newX = 0;
+        int newY = 0;
+        int newWidth = image.getWidth();
+        int newHeight = image.getHeight();
+
+
+        // if image clips outside of screen. image width is set to the with that is still inside of screen
+        if (offX < 0) {
+            newX -= offX;
+        }
+
+        if (offY < 0) {
+            newY -= offY;
+        }
+
+        if (newWidth + offX > this.pixelWidth) {
+            newWidth -= (newWidth + offX - pixelWidth);
+        }
+
+        if (newHeight + offY > this.pixelHeight) {
+            newHeight -= (newHeight + offY - this.pixelHeight);
+        }
+
+        for (int y = newY; y < newHeight; y++ ) {
+            for (int x = newX; x < newWidth; x++ ) {
                 this.setPixel(x + offX, y + offY , image.getPixelValue(x, y));
             }
         }
