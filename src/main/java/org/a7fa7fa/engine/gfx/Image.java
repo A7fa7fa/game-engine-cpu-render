@@ -8,6 +8,8 @@ public class Image {
 
     private int height, width;
     private int[] pixels;
+    private boolean alpha = false;
+    private int lightBlock = Light.NONE;
 
     public Image(String path) {
         BufferedImage image = null;
@@ -22,6 +24,12 @@ public class Image {
         pixels = image.getRGB(0,0, width, height, null, 0, width);
 
         image.flush();
+    }
+
+    public Image(int[] pixels, int width, int height) {
+        this.pixels = pixels;
+        this.width = width;
+        this.height = height;
     }
 
     public int getHeight() {
@@ -43,5 +51,21 @@ public class Image {
             System.out.println(x + " - " + y);
             return 0;
         }
+    }
+
+    public boolean isAlpha() {
+        return alpha;
+    }
+
+    public void setAlpha(boolean alpha) {
+        this.alpha = alpha;
+    }
+
+    public int getLightBlock() {
+        return lightBlock;
+    }
+
+    public void setLightBlock(int lightBlock) {
+        this.lightBlock = lightBlock;
     }
 }

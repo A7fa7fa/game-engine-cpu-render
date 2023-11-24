@@ -1,34 +1,147 @@
 package org.a7fa7fa.engine;
 
-import org.a7fa7fa.engine.gfx.Font;
-import org.a7fa7fa.engine.gfx.Image;
-import org.a7fa7fa.engine.gfx.ImageTile;
+import org.a7fa7fa.engine.gfx.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class Renderer {
 
+    private Font font = Font.STANDARD;
+    private ArrayList<ImageRequest> imageRequests = new ArrayList<ImageRequest>();
+    private ArrayList<LightRequest> lightRequests = new ArrayList<LightRequest>();
+    private boolean processing = false;
 
     private final int pixelHeight, pixelWidth;
     private final int[] pixels;
+    private int[] lightMap;
+    private int[] lightBlock;
 
-    private Font font = Font.STANDARD;
+    private int[] zBuffer;
+    private int zDepth;
+
 
 
     public Renderer(GameContainer gameContainer) {
         pixelWidth = gameContainer.getWidth();
         pixelHeight = gameContainer.getHeight();
         pixels = gameContainer.getWindow().getImagePixelData();
+        zBuffer = new int[pixels.length];
+        lightMap = new int[pixels.length];
+        lightBlock = new int[pixels.length];
+    }
+
+    public void process() {
+        processing = true;
+
+        Collections.sort(imageRequests, new Comparator<ImageRequest>() {
+            @Override
+            public int compare(ImageRequest i1, ImageRequest i2) {
+                if (i1.zDepth < i2.zDepth) {
+                    return -1;
+                }
+                if (i1.zDepth > i2.zDepth) {
+                    return 1;
+                }
+                return 0;
+            }
+        });
+        for (int i = 0; i < imageRequests.size(); i++) {
+            ImageRequest imgRes = imageRequests.get(i);
+            setzDepth(imgRes.zDepth);
+            drawImage(imgRes.image, imgRes.offX, imgRes.offY);
+        }
+
+        for (int i = 0; i < lightRequests.size(); i++) {
+            LightRequest l = lightRequests.get(i);
+            this.drawLightRequest(l.light, l.x, l.y);
+        }
+
+        for (int i = 0; i < pixels.length; i++) {
+            float r = ((lightMap[i] >> 16) & 0xff) / 255f;
+            float g = ((lightMap[i] >> 8) & 0xff) / 255f;
+            float b = ((lightMap[i]) & 0xff) / 255f;
+            pixels[i] = ((int)(((pixels[i] >> 16) & 0xff) * r)) << 16 | ((int)(((pixels[i] >> 8) & 0xff) * g)) << 8 | ((int)((pixels[i] & 0xff) * b));
+        }
+
+        processing = false;
+        imageRequests.clear();
+        lightRequests.clear();
+    }
+
+    public void clear() {
+        for (int i = 0; i < pixels.length; i++) {
+            pixels[i] = 0;
+            zBuffer[i] = 0;
+            lightMap[i] = Color.AMBIENT_COLOR.getHexValue();
+            lightBlock[i] = 0;
+        }
     }
 
     public void setPixel(int x, int y, int value) {
-        if( (x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) || ((value >> 24) & 0xff) == 0) { // bit shift right by 24 bit AND with 255 return alpha value
-//        if( (x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) || value == Color.DONT_RENDER_COLOR.getHexValue() ) {
+        int alpha = ((value >> 24) & 0xff);  // bit shift right by 24 bit AND mask last 8 bit
+        if( (x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) || alpha  == 0) {
             return;
         }
 
-        pixels[x + y * pixelWidth] = value;
+        int pixelIndex = x + y * pixelWidth;
+
+        if (zBuffer[pixelIndex] > zDepth) {
+            return;
+        }
+
+        zBuffer[pixelIndex] = zDepth;
+
+        if (alpha == 255) {
+            pixels[pixelIndex] = value;
+        } else {
+            int pixelColor = pixels[pixelIndex];
+
+            // blend red -> get the difference in red between old and new and scale it by the factor of alpha (how transparent it is)
+            int newRed = ((pixelColor >> 16) & 0xff) - (int)((((pixelColor >> 16) & 0xff) - ((value >> 16) & 0xff)) * (alpha / 255f));
+            int newGreen = ((pixelColor >> 8) & 0xff) - (int)((((pixelColor >> 8) & 0xff) - ((value >> 8) & 0xff)) * (alpha / 255f));
+            int newBlue = ((pixelColor) & 0xff) - (int)((((pixelColor) & 0xff) - ((value) & 0xff)) * (alpha / 255f));
+
+            pixels[pixelIndex] = (255 << 24 | newRed << 16 | newGreen << 8 | newBlue );
+
+        }
+    }
+
+    public void setLightMap(int x, int y, int value) {
+        if (x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) {
+            return;
+        }
+        int pixelIndex = x + y * pixelWidth;
+
+        int baseColor = lightMap[pixelIndex];
+        int maxRed = Math.max((baseColor >> 16) & 0xff, (value >> 16) & 0xff);
+        int maxGreen = Math.max((baseColor >> 8) & 0xff, (value >> 8) & 0xff);
+        int maxBlue = Math.max((baseColor) & 0xff, (value) & 0xff);
+
+        lightMap[pixelIndex] = (maxRed << 16 | maxGreen << 8 | maxBlue );
+
+    }
+
+    public void setLightBlock(int x, int y, int value) {
+        if (x < 0 || x >= pixelWidth || y < 0 || y >= pixelHeight) {
+            return;
+        }
+        int pixelIndex = x + y * pixelWidth;
+
+        if (zBuffer[pixelIndex] > zDepth) {
+            return;
+        }
+        lightBlock[pixelIndex] = value;
     }
 
     public void drawImage(Image image, int offX, int offY) {
+
+        if (image.isAlpha() && !processing) {
+            imageRequests.add(new ImageRequest(image, zDepth, offX, offY));
+            return;
+        }
+
         // don't render if whole image is offscreen
         if (offX < -image.getWidth()) return;
         if (offY < -image.getHeight()) return;
@@ -61,11 +174,17 @@ public class Renderer {
         for (int y = newY; y < newHeight; y++ ) {
             for (int x = newX; x < newWidth; x++ ) {
                 this.setPixel(x + offX, y + offY , image.getPixelValue(x, y));
+                this.setLightBlock(x + offX, y + offY , image.getLightBlock());
             }
         }
     }
 
     public void drawImageTile(ImageTile imageTile, int offX, int offY, int tileX, int tileY) {
+        if (imageTile.isAlpha() && !processing) {
+            imageRequests.add(new ImageRequest(imageTile.getTileImage(tileX, tileY), zDepth, offX, offY));
+            return;
+        }
+
         // don't render if whole image is offscreen
         if (offX < -imageTile.getTileWidth()) return;
         if (offY < -imageTile.getTileHeight()) return;
@@ -98,6 +217,69 @@ public class Renderer {
         for (int y = newY; y < newHeight; y++ ) {
             for (int x = newX; x < newWidth; x++ ) {
                 this.setPixel(x + offX, y + offY , imageTile.getPixelValue(x + (tileX * imageTile.getTileWidth()), y + (tileY * imageTile.getTileHeight())));
+                this.setLightBlock(x + offX, y + offY , imageTile.getLightBlock());
+            }
+        }
+    }
+
+
+    public void drawLight(Light light, int offX, int offY) {
+        lightRequests.add(new LightRequest(light, offX, offY));
+    }
+
+    private void drawLightRequest(Light light, int offX, int offY) {
+        for (int i = 0; i <= light.getDiameter(); i++) {
+            this.drawLightLine(light, light.getRadius(), light.getRadius(), i, 0, offX, offY);
+            this.drawLightLine(light, light.getRadius(), light.getRadius(), i, light.getDiameter(), offX, offY);
+            this.drawLightLine(light, light.getRadius(), light.getRadius(), 0, i, offX, offY);
+            this.drawLightLine(light, light.getRadius(), light.getRadius(), light.getDiameter(), i, offX, offY);
+        }
+    }
+
+    private void drawLightLine(Light light, int x0, int y0, int x1, int y1, int offX, int offY) {
+        int dx = Math.abs(x1 - x0);
+        int dy = Math.abs(y1 - y0);
+
+        int sx = x0 < x1 ? 1 : -1;
+        int sy = y0 < y1 ? 1 : -1;
+
+        int err = dx - dy;
+        int e2;
+
+        while (true){
+
+            int lightColor = light.getLightValue(x0, y0);
+            if (lightColor == 0) { // position is outside of light
+                break;
+            }
+
+            int screenX = x0 - light.getRadius()+offX;
+            int screenY = y0 -light.getRadius()+offY;
+
+            if (screenX < 0 || screenX >= pixelWidth || screenY < 0 || screenY >= pixelHeight) {
+                break;
+            }
+
+            if (lightBlock[screenX + screenY * pixelWidth] == Light.FULL) {
+                break;
+            }
+
+            setLightMap(screenX, screenY, lightColor);
+
+            if (x0 == x1 && y0 == y1) {
+                break;
+            }
+
+            e2 = 2 * err;
+
+            if (e2 > -1 * dy) {
+                err -= dy;
+                x0 += sx;
+            }
+
+            if (e2 < dx) {
+                err += dx;
+                y0 += sy;
             }
         }
     }
@@ -118,6 +300,7 @@ public class Renderer {
                 for (int x = 0; x < font.getWidths()[unicode] * size; x++) {
                     if (font.getFontImage().getPixelValue((x/size) + font.getOffsets()[unicode], (y/size)) == Color.WHITE.getHexValue()) {
                         setPixel(x + offX + offset, y + offY, color);
+                        setLightMap(x + offX + offset, y + offY, color);
                     }
                 }
             }
@@ -130,12 +313,12 @@ public class Renderer {
 
         // TODO clipping and out of screen
 
-        for (int y = 0; y <= height; y++) {
+        for (int y = 0; y < height; y++) {
             setPixel(offX, y + offY, color);
             setPixel(offX + width, y + offY, color);
         }
 
-        for (int x = 0; x <= width; x++) {
+        for (int x = 0; x < width; x++) {
             setPixel(offX + x, offY, color);
             setPixel(offX + x, offY + height, color);
         }
@@ -157,10 +340,7 @@ public class Renderer {
 
     }
 
-
-    public void clear() {
-        for (int i = 0; i < pixels.length; i++) {
-            pixels[i] = 0;
-        }
+    public void setzDepth(int zDepth) {
+        this.zDepth = zDepth;
     }
 }

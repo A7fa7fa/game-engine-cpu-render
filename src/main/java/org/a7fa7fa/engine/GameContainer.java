@@ -14,7 +14,7 @@ public class GameContainer implements Runnable {
     private final double UPDATE_CAP = 1.0 / FRAMES_PER_SECOND;
 
 //    private int width = 1600, height = 900;
-    private int width = 640, height = 480;
+    private int width = 1280, height = 720;
     private float scale = 1f;
 
     private String title = "my engine v1.0";
@@ -74,6 +74,7 @@ public class GameContainer implements Runnable {
             if (render) {
                 renderer.clear();
                 game.render(this, renderer);
+                renderer.process();
                 window.update();
                 fps.incrementFrame();
             } else {

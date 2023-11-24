@@ -6,7 +6,8 @@ public enum Color {
     BLUEISH(0xff006AB5),
     DONT_RENDER_COLOR(0xffff00ff),
     FONT_START_SEP(0xff0000ff),
-    FONT_ENP_SEP(0xffffff00)
+    FONT_ENP_SEP(0xffffff00),
+    AMBIENT_COLOR(0xffc1ced6)
     ;
 
     private final int hex;
