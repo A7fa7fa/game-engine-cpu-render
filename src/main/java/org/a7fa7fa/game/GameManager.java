@@ -5,9 +5,8 @@ import org.a7fa7fa.engine.Color;
 import org.a7fa7fa.engine.GameContainer;
 import org.a7fa7fa.engine.Renderer;
 import org.a7fa7fa.engine.audio.SoundClip;
-import org.a7fa7fa.engine.gfx.Image;
-import org.a7fa7fa.engine.gfx.ImageTile;
-import org.a7fa7fa.engine.gfx.Light;
+import org.a7fa7fa.engine.gfx.*;
+import org.j3d.texture.procedural.PerlinNoiseGenerator;
 
 import java.awt.event.KeyEvent;
 import java.util.concurrent.ThreadLocalRandom;
@@ -22,7 +21,10 @@ public class GameManager extends AbstractGame {
     private ImageTile character;
     private ImageTile idle;
     private SoundClip clip;
+    private Noise noise;
     private Light light2;
+    private Line line;
+    private Line line2;
 
     public GameManager() {
         backgroundTile = new ImageTile("/grasstile_16_16_7.png", 16, 16);
@@ -37,6 +39,9 @@ public class GameManager extends AbstractGame {
         idle = new ImageTile("/character/Swordsman/Idle.png", 128, 128);
         clip = new SoundClip("/audio/clap.wav");
         light2 = new Light(200, 0xff00ffff);
+        noise = new Noise(100, 70, 8);
+        line = new Line(10f,10f,200f,200f);
+        line2 = new Line(10,200,1000,10);
 //        clip.setVolume(-20);
     }
 
@@ -47,6 +52,7 @@ public class GameManager extends AbstractGame {
 
     @Override
     public void update(GameContainer gameContainer, float deltaTime) {
+        noise.update(deltaTime*0.5f);
 
         if (charX == -1) {
             charX = gameContainer.getWidth() / 2;
@@ -113,36 +119,39 @@ public class GameManager extends AbstractGame {
 
 
 
+//        renderer.setzDepth(Integer.MAX_VALUE);
+//        renderer.drawImage(tras, gameContainer.getInput().getMouseX() +50, gameContainer.getInput().getMouseY() +50);
+//        renderer.setzDepth(0);
+
+//        for (int j = 0; j < gameContainer.getHeight(); j += 16) {
+//            for (int i = 0; i < gameContainer.getWidth(); i += 16) {
+//                renderer.drawImageTile(backgroundTile, i, j, world[(j/16) * (gameContainer.getWidth() / 16) + (i/16)] , 0);
+//            }
+//        }
+
+//        renderer.drawRect(50,50,32,32, Color.BLACK.getHexValue());
+//        renderer.drawRect(100,100,32,32, Color.BLUEISH.getHexValue(), true);
+//
+//        renderer.drawImageTile(sprite, 350, 150, (int)spritePos, 0);
+//
+//        renderer.drawImageTile(sprite, 600, 260, (int)spritePos, 0);
+//
+//        renderer.drawImageTile(character, charX, charY, charTile, 0);
+//        renderer.drawImageTile(idle, charX + 50, charY + 50, (int)idlePos, 0);
+//        renderer.drawImageTile(trasTile, 200, charY + 200, 0, 0);
+//
+//        renderer.drawImage(cursor, gameContainer.getInput().getMouseX() - 8, gameContainer.getInput().getMouseY() - 8);
+
+//        renderer.drawLight(light2, gameContainer.getInput().getMouseX(),gameContainer.getInput().getMouseY());
+//        renderer.drawLight(light2, 200, 200);
+
+//        renderer.drawImage(noise, 0, 0);
+        renderer.drawLine(line, 0 , 0, Color.WHITE.getHexValue());
+        renderer.drawLine(line2, 0 , 0, Color.WHITE.getHexValue());
+
+        int textSize = 2;
+
         renderer.setzDepth(Integer.MAX_VALUE);
-        renderer.drawImage(tras, gameContainer.getInput().getMouseX() +50, gameContainer.getInput().getMouseY() +50);
-        renderer.setzDepth(0);
-
-        for (int j = 0; j < gameContainer.getHeight(); j += 16) {
-            for (int i = 0; i < gameContainer.getWidth(); i += 16) {
-                renderer.drawImageTile(backgroundTile, i, j, world[(j/16) * (gameContainer.getWidth() / 16) + (i/16)] , 0);
-            }
-        }
-
-        renderer.drawRect(50,50,32,32, Color.BLACK.getHexValue());
-        renderer.drawRect(100,100,32,32, Color.BLUEISH.getHexValue(), true);
-
-        renderer.drawImageTile(sprite, 350, 150, (int)spritePos, 0);
-
-        renderer.drawImageTile(sprite, 600, 260, (int)spritePos, 0);
-
-        renderer.drawImageTile(character, charX, charY, charTile, 0);
-        renderer.drawImageTile(idle, charX + 50, charY + 50, (int)idlePos, 0);
-        renderer.drawImageTile(trasTile, 200, charY + 200, 0, 0);
-
-        renderer.drawImage(cursor, gameContainer.getInput().getMouseX() - 8, gameContainer.getInput().getMouseY() - 8);
-
-        renderer.drawLight(light2, gameContainer.getInput().getMouseX(),gameContainer.getInput().getMouseY());
-        renderer.drawLight(light2, 200, 200);
-        renderer.drawLight(light2, 400, 400);
-        renderer.drawLight(light2, 800, 400);
-        renderer.drawLight(light2, 600, 400);
-
-        int textSize = 3;
 
         renderer.drawText("Fps: " + String.valueOf(gameContainer.getFps()), 1,1, Color.WHITE.getHexValue(), textSize);
         renderer.drawText("Mouse x:" + gameContainer.getInput().getMouseX() + " y:"+ gameContainer.getInput().getMouseY(), 1,21, Color.WHITE.getHexValue(), textSize);

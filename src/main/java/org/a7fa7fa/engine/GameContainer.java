@@ -14,21 +14,21 @@ public class GameContainer implements Runnable {
     private final double UPDATE_CAP = 1.0 / FRAMES_PER_SECOND;
 
 //    private int width = 1600, height = 900;
-    private int width = 1280, height = 720;
-    private float scale = 1f;
+    private int width = 800, height = 500;
+    private float scale = 1.5f;
 
     private String title = "my engine v1.0";
 
     public GameContainer(AbstractGame game){
         this.game = game;
-    }
-
-    public void start() {
-        System.out.println("Starting game container thread...");
         window = new Window(this);
         renderer = new Renderer(this);
         input = new Input(this);
         fps = new Fps();
+    }
+
+    public void start() {
+        System.out.println("Starting game container thread...");
         thread = new Thread(this);
         thread.run(); // makes this to main thread
     }
@@ -48,7 +48,7 @@ public class GameContainer implements Runnable {
         double unprocessedTime = 0;
 
         while (running) {
-            render = false;
+            render = true;
             firstTime = System.nanoTime() / 1_000_000_000.0;
             passedTime = firstTime - lastTime;
             lastTime = firstTime;

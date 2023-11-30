@@ -1,6 +1,9 @@
 package org.a7fa7fa.engine.gfx;
 
+import org.j3d.texture.procedural.PerlinNoiseGenerator;
+
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -31,6 +34,14 @@ public class Image {
         this.width = width;
         this.height = height;
     }
+
+    public Image(int width, int height) {
+        this.pixels = new int[width * height];
+        this.width = width;
+        this.height = height;
+    }
+
+
 
     public int getHeight() {
         return height;

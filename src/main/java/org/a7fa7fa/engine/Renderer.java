@@ -236,6 +236,7 @@ public class Renderer {
         }
     }
 
+    // Bresenham's line algorithm
     private void drawLightLine(Light light, int x0, int y0, int x1, int y1, int offX, int offY) {
         int dx = Math.abs(x1 - x0);
         int dy = Math.abs(y1 - y0);
@@ -280,6 +281,72 @@ public class Renderer {
             if (e2 < dx) {
                 err += dx;
                 y0 += sy;
+            }
+        }
+    }
+
+    private void plotLineLow(int x0, int y0, int x1, int y1, int color) {
+
+        int dx = x1 - x0;
+        int dy = y1 - y0;
+        int yi = 1;
+
+        if (dy < 0) {
+            yi = -1;
+            dy = -dy;
+        }
+
+        int D = (2 * dy) - dx;
+        int y = y0;
+
+        for (int x = x0; x < x1; x++ ) {
+            this.setPixel(x, y, color);
+            if (D > 0) {
+                y = y + yi;
+                D = D + (2 * (dy - dx));
+            } else {
+                D = D + 2*dy;
+            }
+        }
+    }
+
+    private void plotLineHigh(int x0, int y0, int x1, int y1, int color) {
+
+        int dx = x1 - x0;
+        int dy = y1 - y0;
+        int xi  = 1;
+
+        if (dx  < 0) {
+            xi  = -1;
+            dx = -dx;
+        }
+
+        int D = (2 * dx) - dy;
+        int x = x0;
+
+        for (int y = y0; y < y1; y++ ) {
+            this.setPixel(x, y, color);
+            if (D > 0) {
+                x = x + xi;
+                D = D + (2 * (dx - dy));
+            } else {
+                D = D + 2*dx;
+            }
+        }
+    }
+
+    public void drawLine(Line line, int offX, int offY, int color) {
+        if (Math.abs(line.getEndY() - line.getStartY()) <= Math.abs(line.getEndX() - line.getStartX())) {
+            if (line.getStartX() > line.getEndX()) {
+                this.plotLineLow((int)line.getEndX(), (int)line.getEndY(), (int)line.getStartX(), (int)line.getStartY(), color);
+            } else {
+                this.plotLineLow((int)line.getStartX(), (int)line.getStartY(), (int)line.getEndX(),(int) line.getEndY(), color);
+            }
+        } else {
+            if (line.getStartY() > line.getEndY()) {
+                this.plotLineHigh((int)line.getEndX(), (int)line.getEndY(),(int) line.getStartX(), (int)line.getStartY(), color);
+            } else {
+                this.plotLineHigh((int)line.getStartX(), (int)line.getStartY(),(int) line.getEndX(), (int)line.getEndY(), color);
             }
         }
     }
